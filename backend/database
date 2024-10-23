@@ -1,0 +1,19 @@
+1. Set Up MySQL database
+
+CREATE DATABASE flutter_crud;
+
+USE flutter_crud;
+
+CREATE TABLE items (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  price DECIMAL(10, 2)
+);
+
+
+2. Create API (using Node.Js)
+
+npm init -y
+npm install express mysql body-parser cors
+
