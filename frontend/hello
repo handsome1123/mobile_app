@@ -1,1 +1,5 @@
 
+1. Create API (using Node.Js)
+
+npm init -y
+npm install express mysql body-parser cors
