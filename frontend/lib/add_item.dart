@@ -1,26 +1,32 @@
+// add_item.dart
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class AddItemScreen extends StatefulWidget {
-  @override
-  _AddItemScreenState createState() => _AddItemScreenState();
-}
+class AddItemScreen extends StatelessWidget {
+  final Function(Map<String, dynamic>) onItemAdded;
 
-class _AddItemScreenState extends State<AddItemScreen> {
-  final _formKey = GlobalKey<FormState>();
-  String name = '';
-  String description = '';
-  double price = 0.0;
+  AddItemScreen({required this.onItemAdded});
 
-  Future<void> addItem() async {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController priceController = TextEditingController();
+
+  Future<void> addItem(BuildContext context) async {
+    final name = nameController.text;
+    final description = descriptionController.text;
+    final price = double.tryParse(priceController.text) ?? 0.0;
+
     final response = await http.post(
-      Uri.parse('http://172.25.208.38:3000/items'),
+      Uri.parse('http://172.28.149.34:3000/items'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({'name': name, 'description': description, 'price': price}),
     );
+
     if (response.statusCode == 200) {
-      Navigator.pop(context);
+      final newItem = json.decode(response.body);
+      onItemAdded(newItem); // Notify the parent to add the new item
+      Navigator.pop(context); // Go back to the list screen
     } else {
       throw Exception('Failed to add item');
     }
@@ -29,43 +35,29 @@ class _AddItemScreenState extends State<AddItemScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Add Item')),
+      appBar: AppBar(title: const Text('Add Item')),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Name'),
-                onSaved: (value) {
-                  name = value!;
-                },
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Description'),
-                onSaved: (value) {
-                  description = value!;
-                },
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Price'),
-                keyboardType: TextInputType.number,
-                onSaved: (value) {
-                  price = double.parse(value!);
-                },
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    _formKey.currentState!.save();
-                    addItem();
-                  }
-                },
-                child: Text('Add'),
-              ),
-            ],
-          ),
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: InputDecoration(labelText: 'Name'),
+            ),
+            TextField(
+              controller: descriptionController,
+              decoration: InputDecoration(labelText: 'Description'),
+            ),
+            TextField(
+              controller: priceController,
+              decoration: InputDecoration(labelText: 'Price'),
+              keyboardType: TextInputType.number,
+            ),
+            ElevatedButton(
+              onPressed: () => addItem(context), // Pass context here
+              child: const Text('Add'),
+            ),
+          ],
         ),
       ),
     );
