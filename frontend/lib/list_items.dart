@@ -22,7 +22,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
 
   Future<void> fetchData() async {
     final response =
-        await http.get(Uri.parse('http://172.25.208.38:3000/items'));
+        await http.get(Uri.parse('http://172.28.149.34:3000/items'));
 
     if (response.statusCode == 200) {
       setState(() {
@@ -36,13 +36,20 @@ class _ItemsScreenState extends State<ItemsScreen> {
   //Method to delete an item
   Future<void> deleteItem(int id) async {
     final response =
-        await http.delete(Uri.parse('http://172.25.208.38:3000/items/$id'));
+        await http.delete(Uri.parse('http://172.28.149.34:3000/items/$id'));
 
     if (response.statusCode == 200) {
       fetchData();
     } else {
       throw Exception('Failed to load items');
     }
+  }
+
+  // Refresh
+  void addItemToList(Map<String, dynamic>newItem) {
+    setState(() {
+      items.add(newItem);
+    });
   }
 
   @override
@@ -55,7 +62,15 @@ class _ItemsScreenState extends State<ItemsScreen> {
         children: [
           Row(
             children: [
-              IconButton(onPressed: () {}, icon: const Icon(Icons.add)),
+              IconButton(onPressed: () {
+                // Navigate to the AddItemScreen when the button is pressed
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddItemScreen(onItemAdded: addItemToList),
+              ),
+            );
+                }, icon: const Icon(Icons.add)),
             ],
           ),
           Expanded(
